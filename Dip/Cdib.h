@@ -1,22 +1,23 @@
-#include "windows.h"
+#pragma once
+#include <windows.h>
 #include <wingdi.h>
-#include <string>
+
 class CDib
 {
 public:
-	RGBQUAD* m_pRGB;
-	BYTE* m_pData;
-	UINT m_numberOfColors;
+	BITMAPFILEHEADER bitmapFileHeader; //文件头 
+	DWORD size; //除了bitmapFileHeader之外的大小
+	BYTE* pDib; //除了bitmapFileHeader之外的数据头地址
+	BITMAPINFOHEADER* m_pBitmapInfoHeader;//图片信息头地址
+	RGBQUAD* m_pRGB;//颜色表首地址
+	BITMAPINFO* m_pBitmapInfo; //和系统接口打交道需要用的实体类
 	BOOL m_valid;
-	BITMAPFILEHEADER bitmapFileHeader;
-	BITMAPINFOHEADER* m_pBitmapInfoHeader;
-	BITMAPINFO* m_pBitmapInfo;
-	BYTE* pDib;
-	DWORD size;
+	BYTE* m_pData;//数据区
+	UINT m_numberOfColors;
+	
 public:
-	CDib();
+	CDib();	
 	~CDib();
-
 	char m_fileName[256];
 	char* GetFileName();
 	BOOL IsValid();
@@ -29,7 +30,7 @@ public:
 	BITMAPINFO* GetInfo();
 	WORD PaletteSize(LPBYTE lpDIB);
 	WORD DIBNumColors(LPBYTE lpDIB);
-	void SaveFile(const std::string filename);
-	void LoadFile(const std::string dibFileName);
+	void SaveFile(const char* filename);
+	void LoadFile(const char* dibFileName);
 
 };
