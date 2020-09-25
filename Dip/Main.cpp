@@ -2,16 +2,25 @@
 #include "BMPDto.h"
 #include <iostream>
 #include <string>
+#include <memory>
+#include <vector>
+#include "CNumber.h"
+
 int main() {
 
-	BMPDto bmpDto = BMPDto("c:\\users\\kim\\desktop\\DIP_Material\\ª“∂»Õº.bmp");
+	CNumber time[4] = {CNumber(1,0), CNumber(2,0) , CNumber(2,0) , CNumber(1,0)};
+	CNumber	frequency[4];
 
-	BMP bmp(bmpDto);
+	FFT(4, time, frequency);
 
-	bmp.edgeExtraction();
+	for (int i = 0; i < 4; i++) {
+		std::cout << frequency[i] << std::endl;
+	}
 
-	BMPDto result(bmp);
+	inverseFFT(4, time, frequency);
 
-	result.save("c:\\users\\kim\\desktop\\result11.bmp");
+	for (int i = 0; i < 4; i++) {
+		std::cout << time[i] << std::endl;
+	}
 
 }

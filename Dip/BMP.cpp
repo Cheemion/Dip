@@ -1,5 +1,4 @@
 #include "BMP.h"
-#include "BRG.h"
 #include "BMPDto.h"
 #include <iostream>
 #include <stdlib.h> // .h是c的内置  没有.h的是c++的内置
@@ -10,24 +9,10 @@
 #include <vector>
 #include <algorithm>
 #include <math.h>
+#include "CNumber.h"
 static constexpr auto WHITE = (BYTE)255;
 static constexpr auto BLACK = (BYTE)0;
-static constexpr BYTE flag[256] = { 0,0,1,1,0,0,1,1,1,1,0,1,1,1,0,1,
-									1,1,0,0,1,1,1,1,0,0,0,0,0,0,0,1,
-									0,0,1,1,0,0,1,1,1,1,0,1,1,1,0,1,
-									1,1,0,0,1,1,1,1,0,0,0,0,0,0,0,1,
-									1,1,0,0,1,1,0,0,0,0,0,0,0,0,0,0,
-									0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-									1,1,0,0,1,1,0,0,1,1,0,1,1,1,0,1,
-									0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-									0,0,1,1,0,0,1,1,1,1,0,1,1,1,0,1,
-									1,1,0,0,1,1,1,1,0,0,0,0,0,0,0,1,
-									0,0,1,1,0,0,1,1,1,1,0,1,1,1,0,1,
-									1,1,0,0,1,1,1,1,0,0,0,0,0,0,0,0,
-									1,1,0,0,1,1,0,0,0,0,0,0,0,0,0,0,
-									1,1,0,0,1,1,1,1,0,0,0,0,0,0,0,0,
-									1,1,0,0,1,1,0,0,1,1,0,1,1,1,0,0,
-									1,1,0,0,1,1,1,0,1,1,0,0,1,0,0,0 };
+
 BMP::BMP(const BMPDto & bmpDto)
 {
 	new(this)BMP(bmpDto.m_ColorTableSize, bmpDto.m_DataSize, (BYTE*)bmpDto.m_ColorTable, bmpDto.m_Data, 
@@ -382,7 +367,6 @@ BMP & BMP::boundaryEnhancementByKrisch()
 BMP & BMP::imageBinaryzation(BYTE threshold)
 {
 
-
 	processForEachBytePix([this, threshold](DWORD x, DWORD y) -> BYTE {
 		if (getPixByte(x, y) > threshold)
 			return 255;
@@ -573,36 +557,41 @@ BMP & BMP::crossErosion()
 //not finished
 BMP & BMP::imageThining()
 {
-	processForEachBytePix([this](DWORD x, DWORD y) -> BYTE {
-		if (x == 0 || y == 0 || x == getWidth() - 1 || y == getHeight() - 1)
-			return getPixByte(x, y);
+	return *this;
+}
 
-		if (isWhite(getPixByte(x, y)))
-			return WHITE;
+BMP & BMP::FT()
+{
+	CNumber* cnumbers = new CNumber[getHeight() * getWidth()];
+	double* ft = new double[getHeight() * getWidth()];
+	BMP temp(m_DataBytes, getWidth(), getHeight(), getBitForPix());
 
-		int index = 0;
-		if (isWhite(getPixByteTopLeft(x, y)))
-			index = index + 1;
-		if (isWhite(getPixByteUp(x, y)))
-			index = index + 2;
-		if (isWhite(getPixByteTopRight(x, y)))
-			index = index + 4;
-		if (isWhite(getPixByteLeft(x, y)))
-			index = index + 8;
-		if (isWhite(getPixByteRight(x, y)))
-			index = index + 16;
-		if (isWhite(getPixByteBottomLeft(x, y)))
-			index = index + 32;
-		if (isWhite(getPixByteDown(x, y)))
-			index = index + 64;
-		if (isWhite(getPixByteBottomRight(x, y)))
-			index = index + 128;
+	for (UINT y = 0; y < getHeight(); y++) {
+		for (UINT x = 0; x < getWidth(); x++) {
+			double test = (double)getPixByte(x, y);
+			ft[y * getWidth() + x] = (double)getPixByte(x, y);
+		}
+	}
 
-		if (flag[index] == 0)
-			return BLACK;
-		else
-			return WHITE;
-	});
+//	TwoDimensionDFT(getHeight(), getWidth(), ft, cnumbers);
+
+	for (UINT y = 0; y < getHeight(); y++) {
+		for (UINT x = 0; x < getWidth(); x++) {
+			CNumber c = cnumbers[y * getWidth() + x];
+			double t = cnumbers[y * getWidth() + x].im * cnumbers[y * getWidth() + x].im + cnumbers[y * getWidth() + x].re * cnumbers[y * getWidth() + x].re;
+			t = sqrt(t);
+			if (t > 254.99)
+				temp.getPixByte(x, y) = 255;
+			else
+				temp.getPixByte(x, y) = round(t);
+		}
+	}
+	
+	memcpy(getData(), temp.getData(), m_DataBytes);
+
+
+	delete[] cnumbers;
+	delete[] ft;
 	return *this;
 }
 

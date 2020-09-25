@@ -21,7 +21,7 @@
     <ClInclude Include="BMPDto.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="BRG.h">
+    <ClInclude Include="CNumber.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -33,6 +33,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="BMP.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CNumber.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

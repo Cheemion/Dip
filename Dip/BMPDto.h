@@ -1,7 +1,6 @@
 #pragma once
 #include <windows.h>
 #include <wingdi.h>
-#include "BRG.h"
 class BMP;
 class BMPDto {
 	friend class BMP;

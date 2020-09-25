@@ -2,7 +2,12 @@
 #include <windows.h>
 #include <wingdi.h>
 #include <functional>
-class BRG;
+struct BRG {
+	BYTE    blue;
+	BYTE    green;
+	BYTE    red;
+};
+
 class BMPDto;
 
 class BMP {
@@ -84,4 +89,6 @@ public:
 
 	BMP& imageThining();
 	//virtual void processForEachPix(const std::function<BYTE(DWORD x, WORD y)>& func) = 0;
+
+	BMP& FT();
 };
