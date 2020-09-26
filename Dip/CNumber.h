@@ -16,6 +16,9 @@ public:
 		return os;
 	}
 
+	double getModulo() {
+		return sqrt(re * re + im * im);
+	}
 	CNumber operator+(const CNumber& a) {
 		return CNumber(this->re + a.re, this->im + a.im);
 	}
@@ -31,12 +34,6 @@ public:
 		return temp;
 	}
 
-	CNumber operator/(const CNumber& a) {
-		CNumber temp;
-		temp.re = (this->re * a.re + this->im * a.im) / (a.re * a.re + a.im * a.im);
-		temp.re = (this->im * a.re - this->re * a.im) / (a.re * a.re + a.im * a.im);
-		return temp;
-	}
 
 public:
 	double re;

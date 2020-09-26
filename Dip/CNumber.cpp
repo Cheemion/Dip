@@ -48,21 +48,40 @@ Complex fftHelper(Complex * a, int N, int k) {
 }
 
 void FFT(int N, CNumber* time, CNumber* frequency) {
-	int expandNumber = 1 << (int)(log(N) / log(2));
-	CNumber* expandTime = new CNumber[expandNumber];
-	for (int i = 0; i < expandNumber; i++) {
-		if (i < N)
-			expandTime[i] = time[i];
-		else
-			expandTime[i] = CNumber(0, 0);
-	}
-
 	for (int k = 0; k < N; k++) {
-		frequency[k] = fftHelper(expandTime, expandNumber, k);
+		frequency[k] = fftHelper(time, N, k);
+	}
+}
+
+
+static void FFThelper(Complex * a, int lim) {
+
+	if (lim == 1) return;
+
+	Complex* a0 = new Complex[lim / 2];
+	Complex* a1 = new Complex[lim / 2];
+
+	for (int i = 0; i < lim / 2; i++) {
+		a0[i] = a[i * 2];
+		a1[i] = a[i * 2 + 1];
 	}
 
-	delete[] expandTime;
+	FFT(a0, lim / 2);
+	FFT(a1, lim / 2);
+	Complex wn = Complex(cos(-2.0 * PI / lim), sin(-2.0 * PI / lim));
+	Complex w = Complex(1.0, 0.0);
+
+	for (int k = 0; k < lim / 2; k++) {
+		a[k] = a0[k] + w * a1[k];
+		a[k + lim / 2] = a0[k] - w * a1[k];
+		w = w * wn;
+	}
+
+	delete[] a0;
+	delete[] a1;
+
 }
+
 
 void FFT(Complex * a, int lim) {
 	if (lim == 1) return;
@@ -117,6 +136,7 @@ void inverseFFT(Complex * a, int lim)
 	for (int i = 0; i < lim; i++) {
 		a[i] = N * a[i];
 	}
+
 }
 
 

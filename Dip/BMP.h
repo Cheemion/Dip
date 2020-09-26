@@ -8,6 +8,7 @@ struct BRG {
 	BYTE    red;
 };
 
+class TwoDimensionalArray;
 class BMPDto;
 
 class BMP {
@@ -90,5 +91,5 @@ public:
 	BMP& imageThining();
 	//virtual void processForEachPix(const std::function<BYTE(DWORD x, WORD y)>& func) = 0;
 
-	BMP& FT();
+	BMP& FourierTransform();
 };

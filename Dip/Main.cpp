@@ -8,19 +8,10 @@
 
 int main() {
 
-	CNumber time[4] = {CNumber(1,0), CNumber(2,0) , CNumber(2,0) , CNumber(1,0)};
-	CNumber	frequency[4];
-
-	FFT(4, time, frequency);
-
-	for (int i = 0; i < 4; i++) {
-		std::cout << frequency[i] << std::endl;
-	}
-
-	inverseFFT(4, time, frequency);
-
-	for (int i = 0; i < 4; i++) {
-		std::cout << time[i] << std::endl;
-	}
+	BMPDto in("C:\\Users\\kim\\Desktop\\DIP_Material\\result.bmp");
+	BMP bmp(in);
+	bmp.FourierTransform();
+	BMPDto out(bmp);
+	out.save("C:\\Users\\kim\\Desktop\\tttt.bmp");
 
 }

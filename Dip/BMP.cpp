@@ -10,8 +10,57 @@
 #include <algorithm>
 #include <math.h>
 #include "CNumber.h"
+#include<cmath>
 static constexpr auto WHITE = (BYTE)255;
 static constexpr auto BLACK = (BYTE)0;
+class TwoDimensionalArray {
+
+public:
+	int rowLength;
+	int columnLength;
+	Complex ** data;
+	Complex* temp;
+	TwoDimensionalArray(int rowNumber, int columnNumber) : rowLength(rowNumber), columnLength(columnNumber) {
+		data = new CNumber*[rowNumber];
+		for (int i = 0; i < rowNumber; i++) {
+			data[i] = new Complex[columnLength];
+		}
+		temp = new Complex[rowLength];
+	}
+
+	~TwoDimensionalArray() {
+		for (int i = 0; i < rowLength; i++) {
+			delete[] data[i];
+		}
+		delete[] data;
+		delete[] temp;
+	}
+
+	Complex* getRow(int row) {
+		return data[row];
+	}
+
+	Complex* getColumn(int column) {
+		for (int i = 0; i < rowLength; i++) {
+			temp[i] = data[i][column];
+		}
+		return temp;
+	}
+
+	void copyTemp2Column(int column) {
+		for (int i = 0; i < rowLength; i++) {
+			data[i][column] = temp[i];
+		}
+	}
+
+	void print() {
+		int i = 0;
+		for (int j = 0; j < columnLength; j++) {
+			std::cout << data[i][j] << " ";
+		}
+	}
+};
+
 
 BMP::BMP(const BMPDto & bmpDto)
 {
@@ -560,42 +609,63 @@ BMP & BMP::imageThining()
 	return *this;
 }
 
-BMP & BMP::FT()
-{
-	CNumber* cnumbers = new CNumber[getHeight() * getWidth()];
-	double* ft = new double[getHeight() * getWidth()];
-	BMP temp(m_DataBytes, getWidth(), getHeight(), getBitForPix());
-
-	for (UINT y = 0; y < getHeight(); y++) {
-		for (UINT x = 0; x < getWidth(); x++) {
-			double test = (double)getPixByte(x, y);
-			ft[y * getWidth() + x] = (double)getPixByte(x, y);
-		}
+double getPower(double a, int b) {
+	if (b == 0)
+		return 1.0;
+	else if (b == 1)
+		return a;
+	else {
+		double result = 1.0;
+		for (int i = 0; i < b; i++)
+			result = result * a;
+		return result;
 	}
-
-//	TwoDimensionDFT(getHeight(), getWidth(), ft, cnumbers);
-
-	for (UINT y = 0; y < getHeight(); y++) {
-		for (UINT x = 0; x < getWidth(); x++) {
-			CNumber c = cnumbers[y * getWidth() + x];
-			double t = cnumbers[y * getWidth() + x].im * cnumbers[y * getWidth() + x].im + cnumbers[y * getWidth() + x].re * cnumbers[y * getWidth() + x].re;
-			t = sqrt(t);
-			if (t > 254.99)
-				temp.getPixByte(x, y) = 255;
-			else
-				temp.getPixByte(x, y) = round(t);
-		}
-	}
-	
-	memcpy(getData(), temp.getData(), m_DataBytes);
-
-
-	delete[] cnumbers;
-	delete[] ft;
-	return *this;
 }
 
+BMP & BMP::FourierTransform()
+{
+	TwoDimensionalArray image(getHeight(), getWidth());
+
+	for (UINT row = 0; row < getHeight(); row++) {
+		for (UINT column = 0; column < getWidth(); column++) {
+			image.data[row][column] = Complex(getPixByte(column, row) * getPower(-1.0, column + row), 0.0);
+		}
+	}
+
+	for (UINT y = 0; y < getHeight(); y++) {
+		Complex* temp = image.getRow(y);
+		FFT(temp, image.columnLength);
+	}
+
+
+	for (UINT x = 0; x < getWidth(); x++) {
+		Complex* temp = image.getColumn(x);
+		FFT(temp, image.rowLength);
+		image.copyTemp2Column(x);
+	}
+
+	double min = 255;
+	double max = 0;
+	for (UINT y = 0; y < getHeight(); y++) {
+		for (UINT x = 0; x < getWidth(); x++) {
+			double temp = log(image.data[y][x].getModulo() + 1.0);
+			if (min > temp)
+				min = temp;
+			if (max < temp)
+				max = temp;
+		}
+	}
+
+	for (UINT y = 0; y < getHeight(); y++) {
+		for (UINT x = 0; x < getWidth(); x++) {
+			getPixByte(x, y) = (log(image.data[y][x].getModulo() + 1.0) - min) / (max - min) * 255;
+		}
+	}
+
+	return *this;
+}
 
 BMPDto * BMP::convertToDto() {
 	return new BMPDto(m_Width, m_Height, m_BitForPix, m_ColorTableBytes, m_DataBytes, m_ColorTable, m_Data);
 }
+
