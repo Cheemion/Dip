@@ -24,6 +24,9 @@
     <ClInclude Include="CNumber.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="TwoDimensionalArray.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BMPDto.cpp">
@@ -36,6 +39,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CNumber.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TwoDimensionalArray.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

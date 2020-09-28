@@ -13,54 +13,6 @@
 #include<cmath>
 static constexpr auto WHITE = (BYTE)255;
 static constexpr auto BLACK = (BYTE)0;
-class TwoDimensionalArray {
-
-public:
-	int rowLength;
-	int columnLength;
-	Complex ** data;
-	Complex* temp;
-	TwoDimensionalArray(int rowNumber, int columnNumber) : rowLength(rowNumber), columnLength(columnNumber) {
-		data = new CNumber*[rowNumber];
-		for (int i = 0; i < rowNumber; i++) {
-			data[i] = new Complex[columnLength];
-		}
-		temp = new Complex[rowLength];
-	}
-
-	~TwoDimensionalArray() {
-		for (int i = 0; i < rowLength; i++) {
-			delete[] data[i];
-		}
-		delete[] data;
-		delete[] temp;
-	}
-
-	Complex* getRow(int row) {
-		return data[row];
-	}
-
-	Complex* getColumn(int column) {
-		for (int i = 0; i < rowLength; i++) {
-			temp[i] = data[i][column];
-		}
-		return temp;
-	}
-
-	void copyTemp2Column(int column) {
-		for (int i = 0; i < rowLength; i++) {
-			data[i][column] = temp[i];
-		}
-	}
-
-	void print() {
-		int i = 0;
-		for (int j = 0; j < columnLength; j++) {
-			std::cout << data[i][j] << " ";
-		}
-	}
-};
-
 
 BMP::BMP(const BMPDto & bmpDto)
 {
@@ -622,27 +574,35 @@ double getPower(double a, int b) {
 	}
 }
 
-BMP & BMP::FourierTransform()
+//得到图像的 二维傅里叶变换图
+TwoDimensionalArray* BMP::FourierTransform()
 {
-	TwoDimensionalArray image(getHeight(), getWidth());
-
+	TwoDimensionalArray* image= new TwoDimensionalArray(getHeight(), getWidth());
 	for (UINT row = 0; row < getHeight(); row++) {
 		for (UINT column = 0; column < getWidth(); column++) {
-			image.data[row][column] = Complex(getPixByte(column, row) * getPower(-1.0, column + row), 0.0);
+			(*image).data[row][column] = Complex(getPixByte(column, row) * getPower(-1.0, column + row), 0.0);
 		}
 	}
 
 	for (UINT y = 0; y < getHeight(); y++) {
-		Complex* temp = image.getRow(y);
-		FFT(temp, image.columnLength);
+		Complex* temp = (*image).getRow(y);
+		FFT(temp, (*image).columnLength);
 	}
-
 
 	for (UINT x = 0; x < getWidth(); x++) {
-		Complex* temp = image.getColumn(x);
-		FFT(temp, image.rowLength);
-		image.copyTemp2Column(x);
+		Complex* temp = (*image).getColumn(x);
+		FFT(temp, (*image).rowLength);
+		(*image).copyTemp2Column(x);
 	}
+
+	return image;
+}
+
+
+//得到二维图像显示的bmp图片
+BMP * BMP::fourierTransformDisplay(TwoDimensionalArray & image)
+{
+
 
 	double min = 255;
 	double max = 0;
@@ -656,12 +616,45 @@ BMP & BMP::FourierTransform()
 		}
 	}
 
+
+	BMP* result = new BMP(this->m_ColorTableBytes, this->m_DataBytes, (BYTE*)this->m_ColorTable, this->getData(), this->getWidth(), this->getHeight(), this->getBitForPix());
+
 	for (UINT y = 0; y < getHeight(); y++) {
 		for (UINT x = 0; x < getWidth(); x++) {
-			getPixByte(x, y) = (log(image.data[y][x].getModulo() + 1.0) - min) / (max - min) * 255;
+			result->getPixByte(x, y) = round((log(image.data[y][x].getModulo() + 1.0) - min) / (max - min) * 255);
+		}
+	}
+	return result;
+}
+
+//傅里叶逆变换在原图上
+BMP&  BMP::inversefourierTransform(TwoDimensionalArray & image)
+{
+	for (UINT row = 0; row < getHeight(); row++) {
+		for (UINT column = 0; column < getWidth(); column++) {
+			image.data[row][column] = image.data[row][column] * Complex(getPower(-1.0, column + row), 0.0);
 		}
 	}
 
+
+	for (UINT y = 0; y < getHeight(); y++) {
+		Complex* temp = image.getRow(y);
+		inverseFFT(temp, image.columnLength);
+	}
+
+
+	for (UINT x = 0; x < getWidth(); x++) {
+		Complex* temp = image.getColumn(x);
+		inverseFFT(temp, image.rowLength);
+		image.copyTemp2Column(x);
+	}
+
+	for (UINT y = 0; y < getHeight(); y++) {
+		for (UINT x = 0; x < getWidth(); x++) {
+			CNumber tt = image.data[y][x];
+			getPixByte(x, y) = image.data[y][x].re;
+		}
+	}
 	return *this;
 }
 

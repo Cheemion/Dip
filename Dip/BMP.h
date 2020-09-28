@@ -2,13 +2,13 @@
 #include <windows.h>
 #include <wingdi.h>
 #include <functional>
+#include "TwoDimensionalArray.h"
 struct BRG {
 	BYTE    blue;
 	BYTE    green;
 	BYTE    red;
 };
 
-class TwoDimensionalArray;
 class BMPDto;
 
 class BMP {
@@ -91,5 +91,10 @@ public:
 	BMP& imageThining();
 	//virtual void processForEachPix(const std::function<BYTE(DWORD x, WORD y)>& func) = 0;
 
-	BMP& FourierTransform();
+	TwoDimensionalArray* FourierTransform();
+
+	//生成另外一个傅里叶展示的图片
+	BMP* fourierTransformDisplay(TwoDimensionalArray& image);
+	//在原图片上进行傅里叶逆变换
+	BMP& inversefourierTransform(TwoDimensionalArray& image);
 };

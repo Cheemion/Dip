@@ -86,22 +86,22 @@ static void FFThelper(Complex * a, int lim) {
 void FFT(Complex * a, int lim) {
 	if (lim == 1) return;
 
-	Complex* a0 = new Complex[lim / 2];
-	Complex* a1 = new Complex[lim / 2];
+	Complex* a0 = new Complex[lim >> 1];
+	Complex* a1 = new Complex[lim >> 1];
 
-	for (int i = 0; i < lim / 2; i++) {
-		a0[i] = a[i * 2];
-		a1[i] = a[i * 2 + 1];
+	for (int i = 0; i < lim; i = i + 2) {
+		a0[i >> 1] = a[i];
+		a1[i >> 1] = a[i + 1];
 	}
 
-	FFT(a0, lim / 2);
-	FFT(a1, lim / 2);
+	FFT(a0, lim >> 1);
+	FFT(a1, lim >> 1);
 	Complex wn = Complex(cos(-2.0 * PI / lim), sin(-2.0 * PI / lim));
 	Complex w = Complex(1.0, 0.0);
 
-	for (int k = 0; k < lim / 2; k++) {
+	for (int k = 0; k < (lim >> 1); k++) {
 		a[k] = a0[k] + w * a1[k];
-		a[k + lim / 2] = a0[k] - w * a1[k];
+		a[k + (lim >> 1)] = a0[k] - w * a1[k];
 		w = w * wn;
 	}
 
@@ -143,24 +143,25 @@ void inverseFFT(Complex * a, int lim)
 static void InverseFFTHelper(Complex * a, int lim) {
 	if (lim == 1) return;
 
-	Complex* a0 = new Complex[lim / 2];
-	Complex* a1 = new Complex[lim / 2];
+	Complex* a0 = new Complex[lim >> 1];
+	Complex* a1 = new Complex[lim >> 1];
 
-	for (int i = 0; i < lim / 2; i++) {
-		a0[i] = a[i * 2];
-		a1[i] = a[i * 2 + 1];
+	for (int i = 0; i < lim; i = i + 2) {
+		a0[i >> 1] = a[i];
+		a1[i >> 1] = a[i + 1];
 	}
 
-	FFT(a0, lim / 2);
-	FFT(a1, lim / 2);
+	InverseFFTHelper(a0, lim >> 1);
+	InverseFFTHelper(a1, lim >> 1);
 	Complex wn = Complex(cos(2.0 * PI / lim), sin(2.0 * PI / lim));
 	Complex w = Complex(1.0, 0.0);
 
-	for (int k = 0; k < lim / 2; k++) {
+	for (int k = 0; k < (lim >> 1); k++) {
 		a[k] = a0[k] + w * a1[k];
-		a[k + lim / 2] = a0[k] - w * a1[k];
+		a[k + (lim >> 1)] = a0[k] - w * a1[k];
 		w = w * wn;
 	}
+
 	delete[] a0;
 	delete[] a1;
 }

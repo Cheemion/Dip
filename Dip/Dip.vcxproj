@@ -126,12 +126,14 @@
     <ClInclude Include="BMP.h" />
     <ClInclude Include="BMPDto.h" />
     <ClInclude Include="CNumber.h" />
+    <ClInclude Include="TwoDimensionalArray.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BMP.cpp" />
     <ClCompile Include="BMPDto.cpp" />
     <ClCompile Include="CNumber.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="TwoDimensionalArray.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

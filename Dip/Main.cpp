@@ -6,12 +6,28 @@
 #include <vector>
 #include "CNumber.h"
 
+
 int main() {
+
 
 	BMPDto in("C:\\Users\\kim\\Desktop\\DIP_Material\\result.bmp");
 	BMP bmp(in);
-	bmp.FourierTransform();
-	BMPDto out(bmp);
-	out.save("C:\\Users\\kim\\Desktop\\tttt.bmp");
+	TwoDimensionalArray* frequencyDomain = bmp.FourierTransform();
+
+
+
+	BMP* fourierdisplay = bmp.fourierTransformDisplay(*frequencyDomain);
+	BMPDto out(*fourierdisplay);
+	out.save("C:\\Users\\kim\\Desktop\\fourier.bmp");
+	delete fourierdisplay;
+
+
+
+	bmp.inversefourierTransform(*frequencyDomain);
+	BMPDto out1(bmp);
+	out1.save("C:\\Users\\kim\\Desktop\\changed.bmp");
+
+
+	delete frequencyDomain;
 
 }
