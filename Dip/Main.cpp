@@ -15,12 +15,10 @@ int main() {
 	TwoDimensionalArray* frequencyDomain = bmp.FourierTransform();
 
 
-
 	BMP* fourierdisplay = bmp.fourierTransformDisplay(*frequencyDomain);
 	BMPDto out(*fourierdisplay);
 	out.save("C:\\Users\\kim\\Desktop\\fourier.bmp");
 	delete fourierdisplay;
-
 
 
 	bmp.inversefourierTransform(*frequencyDomain);

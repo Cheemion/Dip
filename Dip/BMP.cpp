@@ -630,9 +630,14 @@ BMP * BMP::fourierTransformDisplay(TwoDimensionalArray & image)
 //傅里叶逆变换在原图上
 BMP&  BMP::inversefourierTransform(TwoDimensionalArray & image)
 {
-	for (UINT row = 0; row < getHeight(); row++) {
-		for (UINT column = 0; column < getWidth(); column++) {
-			image.data[row][column] = image.data[row][column] * Complex(getPower(-1.0, column + row), 0.0);
+
+	for (UINT y = 0; y < getHeight(); y++) {
+		for (UINT x = 0; x < getWidth(); x++) {
+			if (sqrt((x - 128) * (x - 128) + (y - 128)*(y - 128)) < 61) {
+				image.data[y][x] = image.data[y][x] * CNumber(0.1, 0);
+			} else {
+				//image.data[y][x] = image.data[y][x] * CNumber(1.0, 1.0);
+			}
 		}
 	}
 
@@ -641,7 +646,7 @@ BMP&  BMP::inversefourierTransform(TwoDimensionalArray & image)
 		Complex* temp = image.getRow(y);
 		inverseFFT(temp, image.columnLength);
 	}
-
+	
 
 	for (UINT x = 0; x < getWidth(); x++) {
 		Complex* temp = image.getColumn(x);
@@ -649,12 +654,13 @@ BMP&  BMP::inversefourierTransform(TwoDimensionalArray & image)
 		image.copyTemp2Column(x);
 	}
 
+
 	for (UINT y = 0; y < getHeight(); y++) {
 		for (UINT x = 0; x < getWidth(); x++) {
-			CNumber tt = image.data[y][x];
-			getPixByte(x, y) = image.data[y][x].re;
+			getPixByte(x, y) = round(image.data[y][x].re * getPower(-1.0, x + y));
 		}
 	}
+
 	return *this;
 }
 
